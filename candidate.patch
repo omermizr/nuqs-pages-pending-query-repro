@@ -1,0 +1,40 @@
+--- a/node_modules/nuqs/dist/impl.pages-CZFUzBFr.js
++++ b/node_modules/nuqs/dist/impl.pages-CZFUzBFr.js
+@@ -10,11 +10,13 @@
+ const adapterState = globalSingleton("next-pages-router-update", () => ({
+ 	isNuqsUpdate: false,
+ 	navigationHandled: false,
+-	fallbackScheduled: false
++	fallbackScheduled: false,
++	pendingSearch: null
+ }));
+ function onNavigation() {
+ 	if (adapterState.isNuqsUpdate) return;
+ 	adapterState.navigationHandled = true;
++	adapterState.pendingSearch = null;
+ 	resetQueues();
+ }
+ function onNavigationWithoutSubscribers() {
+@@ -44,7 +46,10 @@
+ 			else if (Array.isArray(value)) for (const v of value) searchParams.append(key, v);
+ 			return searchParams;
+ 		}, [JSON.stringify(router?.query)]),
++		getSearchParamsSnapshot: useCallback(() => new URLSearchParams(adapterState.pendingSearch ?? location.search), []),
+ 		updateUrl: useCallback((search, options) => {
++			const pendingSearch = new URLSearchParams(search);
++			adapterState.pendingSearch = pendingSearch;
+ 			const nextRouter = window.next?.router;
+ 			const urlParams = extractDynamicUrlParams(nextRouter.pathname, nextRouter.query);
+ 			const asPath = getAsPathPathname(nextRouter.asPath) + renderQueryString(search) + location.hash;
+@@ -62,9 +67,11 @@
+ 					scroll: options.scroll,
+ 					shallow: options.shallow
+ 				}).finally(() => {
++					if (adapterState.pendingSearch === pendingSearch) adapterState.pendingSearch = null;
+ 					adapterState.isNuqsUpdate = false;
+ 				});
+ 			} catch (error) {
++				if (adapterState.pendingSearch === pendingSearch) adapterState.pendingSearch = null;
+ 				adapterState.isNuqsUpdate = false;
+ 				throw error;
+ 			}

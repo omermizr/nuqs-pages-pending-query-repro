@@ -1,0 +1,20 @@
+{
+  "name": "nuqs-pages-pending-query-repro",
+  "private": true,
+  "version": "1.0.0",
+  "scripts": {
+    "dev": "next dev -p 3027",
+    "build": "next build",
+    "start": "next start -p 3027",
+    "test": "playwright test"
+  },
+  "dependencies": {
+    "next": "16.3.5",
+    "nuqs": "2.10.1",
+    "react": "19.2.4",
+    "react-dom": "19.2.4"
+  },
+  "devDependencies": {
+    "@playwright/test": "1.57.0"
+  }
+}
